@@ -39,8 +39,9 @@ const ProductCard = ({
             <Button 
               size="sm" 
               className="bg-white text-foreground hover:bg-white/90"
+              asChild
             >
-              Quick View
+              <Link to={`/product/${id}`}>Quick View</Link>
             </Button>
             <Button 
               size="icon"
