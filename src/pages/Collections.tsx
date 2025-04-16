@@ -1,18 +1,18 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import ProductFilterSidebar from "@/components/ProductFilterSidebar";
+import MobileFilterDrawer from "@/components/MobileFilterDrawer";
+import ProductSorter from "@/components/ProductSorter";
+import ProductFilters from "@/components/ProductFilters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Sample product data
+// Sample product data - keeping this the same
 const products = [
   {
     id: "prod-1",
@@ -105,21 +105,98 @@ const products = [
   },
 ];
 
-// Categories for filtering
-const categories = ["All", "Necklaces", "Earrings", "Rings", "Bracelets"];
-
 // Filter options
 const materialOptions = ["14k Gold", "18k Gold", "24k Gold", "Gold Vermeil", "Gold Plated"];
 const stoneOptions = ["Diamond", "Ruby", "Sapphire", "Emerald", "None"];
+const categories = ["All", "Necklaces", "Earrings", "Rings", "Bracelets"];
 
 const Collections = () => {
+  const { category } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // State for filters and search
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState([0, 2000]);
+  const [materials, setMaterials] = useState<string[]>([]);
+  const [stones, setStones] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOption, setSortOption] = useState("featured");
   
-  // Filter products based on category, search query, and price range
+  // Set initial category from URL param if present
+  useEffect(() => {
+    if (category) {
+      const formattedCategory = category.charAt(0).toUpperCase() + category.slice(1);
+      if (categories.includes(formattedCategory)) {
+        setActiveCategory(formattedCategory);
+      }
+    }
+  }, [category]);
+  
+  // Update URL when filters change
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    
+    // Add params only if they're not default values
+    if (sortOption !== "featured") searchParams.set("sort", sortOption);
+    else searchParams.delete("sort");
+    
+    if (searchQuery) searchParams.set("q", searchQuery);
+    else searchParams.delete("q");
+    
+    if (priceRange[0] > 0 || priceRange[1] < 2000) {
+      searchParams.set("price", `${priceRange[0]},${priceRange[1]}`);
+    } else {
+      searchParams.delete("price");
+    }
+    
+    if (materials.length > 0) searchParams.set("materials", materials.join(","));
+    else searchParams.delete("materials");
+    
+    if (stones.length > 0) searchParams.set("stones", stones.join(","));
+    else searchParams.delete("stones");
+    
+    // Get path without search params
+    const path = location.pathname;
+    const newUrl = materials.length || stones.length || searchQuery || 
+                  sortOption !== "featured" || priceRange[0] > 0 || priceRange[1] < 2000 
+                  ? `${path}?${searchParams}` : path;
+    
+    // Replace history state without causing page refresh
+    navigate(newUrl, { replace: true });
+  }, [activeCategory, searchQuery, priceRange, materials, stones, sortOption, location.pathname, navigate]);
+  
+  // Get params from URL when page loads
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    
+    if (searchParams.has("sort")) {
+      setSortOption(searchParams.get("sort") || "featured");
+    }
+    
+    if (searchParams.has("q")) {
+      setSearchQuery(searchParams.get("q") || "");
+    }
+    
+    if (searchParams.has("price")) {
+      const priceParam = searchParams.get("price") || "0,2000";
+      const [min, max] = priceParam.split(",").map(Number);
+      setPriceRange([min, max]);
+    }
+    
+    if (searchParams.has("materials")) {
+      const materialsParam = searchParams.get("materials") || "";
+      setMaterials(materialsParam.split(","));
+    }
+    
+    if (searchParams.has("stones")) {
+      const stonesParam = searchParams.get("stones") || "";
+      setStones(stonesParam.split(","));
+    }
+  }, [location.search]);
+  
+  // Filter products based on all criteria
   const filteredProducts = products
     .filter(product => activeCategory === "All" || product.category === activeCategory)
     .filter(product => 
@@ -147,10 +224,28 @@ const Collections = () => {
   });
 
   const resetFilters = () => {
-    setActiveCategory("All");
+    setActiveCategory(category ? (category.charAt(0).toUpperCase() + category.slice(1)) : "All");
     setSearchQuery("");
     setPriceRange([0, 2000]);
+    setMaterials([]);
+    setStones([]);
     setSortOption("featured");
+    navigate(location.pathname);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    
+    if (category === "All") {
+      // Remove category from URL path
+      const pathParts = location.pathname.split('/');
+      if (pathParts.length > 2) {
+        navigate('/collections');
+      }
+    } else {
+      // Add category to URL path
+      navigate(`/collections/${category.toLowerCase()}`);
+    }
   };
 
   return (
@@ -161,7 +256,9 @@ const Collections = () => {
         {/* Hero Banner */}
         <div className="bg-secondary/50 py-16">
           <div className="container px-6 mx-auto text-center">
-            <h1 className="text-3xl md:text-5xl font-playfair font-semibold mb-4">Our Collections</h1>
+            <h1 className="text-3xl md:text-5xl font-playfair font-semibold mb-4">
+              {activeCategory === "All" ? "Our Collections" : activeCategory}
+            </h1>
             <p className="text-muted-foreground font-poppins max-w-2xl mx-auto">
               Explore our carefully curated gold jewelry pieces, handcrafted with precision and designed for elegance
             </p>
@@ -170,7 +267,7 @@ const Collections = () => {
         
         {/* Filter & Product Section */}
         <div className="container px-6 py-12 mx-auto">
-          {/* Search and Filter Bar */}
+          {/* Search and Sort Bar */}
           <div className="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between">
             <div className="w-full md:w-1/3 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -193,21 +290,10 @@ const Collections = () => {
             </div>
             
             <div className="flex items-center gap-4 w-full md:w-auto">
-              <div className="w-full md:w-auto flex items-center gap-2">
-                <Label htmlFor="sort" className="text-sm whitespace-nowrap">Sort by:</Label>
-                <select 
-                  id="sort"
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                  className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="featured">Featured</option>
-                  <option value="price-low-high">Price: Low to High</option>
-                  <option value="price-high-low">Price: High to Low</option>
-                  <option value="name-a-z">Name: A to Z</option>
-                  <option value="name-z-a">Name: Z to A</option>
-                </select>
-              </div>
+              <ProductSorter 
+                value={sortOption} 
+                onChange={(value) => setSortOption(value)} 
+              />
               
               <Button 
                 variant="outline" 
@@ -222,250 +308,62 @@ const Collections = () => {
           
           <div className="flex flex-col md:flex-row gap-8">
             {/* Filters - Desktop */}
-            <div className="hidden md:block w-64 space-y-6">
-              <div>
-                <h3 className="font-medium mb-3">Categories</h3>
-                <div className="space-y-1.5">
-                  {categories.map((category) => (
-                    <Button
-                      key={category}
-                      variant="ghost"
-                      className={cn(
-                        "w-full justify-start px-2",
-                        activeCategory === category 
-                          ? "bg-gold-light/10 text-gold-dark font-medium hover:bg-gold-light/20" 
-                          : "hover:bg-muted"
-                      )}
-                      onClick={() => setActiveCategory(category)}
-                    >
-                      {category}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-3">Price Range</h3>
-                <div className="px-2">
-                  <Slider 
-                    defaultValue={[0, 2000]} 
-                    max={2000} 
-                    step={50}
-                    value={priceRange}
-                    onValueChange={setPriceRange}
-                    className="my-6"
-                  />
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">${priceRange[0]}</span>
-                    <span className="text-sm">${priceRange[1]}+</span>
-                  </div>
-                </div>
-              </div>
-              
-              <Collapsible defaultOpen>
-                <CollapsibleTrigger className="flex w-full items-center justify-between font-medium mb-3">
-                  Material
-                  <ChevronDown className="h-4 w-4" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-2">
-                  {materialOptions.map((material) => (
-                    <div key={material} className="flex items-center gap-2">
-                      <Checkbox id={`material-${material}`} />
-                      <Label htmlFor={`material-${material}`} className="text-sm">
-                        {material}
-                      </Label>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-              
-              <Collapsible defaultOpen>
-                <CollapsibleTrigger className="flex w-full items-center justify-between font-medium mb-3">
-                  Stones
-                  <ChevronDown className="h-4 w-4" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-2">
-                  {stoneOptions.map((stone) => (
-                    <div key={stone} className="flex items-center gap-2">
-                      <Checkbox id={`stone-${stone}`} />
-                      <Label htmlFor={`stone-${stone}`} className="text-sm">
-                        {stone}
-                      </Label>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-              
-              <Button 
-                variant="outline" 
-                onClick={resetFilters}
-                className="w-full mt-6"
-              >
-                Reset Filters
-              </Button>
-            </div>
+            <ProductFilterSidebar 
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={handleCategoryChange}
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
+              materials={materials}
+              onMaterialsChange={setMaterials}
+              materialOptions={materialOptions}
+              stones={stones}
+              onStonesChange={setStones}
+              stoneOptions={stoneOptions}
+              onReset={resetFilters}
+            />
             
             {/* Filters - Mobile */}
-            {filterOpen && (
-              <div className="md:hidden fixed inset-0 bg-background z-50 overflow-auto p-4">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-medium">Filters</h2>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => setFilterOpen(false)}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-                
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-medium mb-3">Categories</h3>
-                    <div className="space-y-1.5">
-                      {categories.map((category) => (
-                        <Button
-                          key={category}
-                          variant="ghost"
-                          className={cn(
-                            "w-full justify-start px-2",
-                            activeCategory === category 
-                              ? "bg-gold-light/10 text-gold-dark font-medium hover:bg-gold-light/20" 
-                              : "hover:bg-muted"
-                          )}
-                          onClick={() => {
-                            setActiveCategory(category);
-                            setFilterOpen(false);
-                          }}
-                        >
-                          {category}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-medium mb-3">Price Range</h3>
-                    <div className="px-2">
-                      <Slider 
-                        defaultValue={[0, 2000]} 
-                        max={2000} 
-                        step={50}
-                        value={priceRange}
-                        onValueChange={setPriceRange}
-                        className="my-6"
-                      />
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">${priceRange[0]}</span>
-                        <span className="text-sm">${priceRange[1]}+</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Collapsible defaultOpen>
-                    <CollapsibleTrigger className="flex w-full items-center justify-between font-medium mb-3">
-                      Material
-                      {true ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-2">
-                      {materialOptions.map((material) => (
-                        <div key={material} className="flex items-center gap-2">
-                          <Checkbox id={`material-mobile-${material}`} />
-                          <Label htmlFor={`material-mobile-${material}`} className="text-sm">
-                            {material}
-                          </Label>
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                  
-                  <Collapsible defaultOpen>
-                    <CollapsibleTrigger className="flex w-full items-center justify-between font-medium mb-3">
-                      Stones
-                      {true ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-2">
-                      {stoneOptions.map((stone) => (
-                        <div key={stone} className="flex items-center gap-2">
-                          <Checkbox id={`stone-mobile-${stone}`} />
-                          <Label htmlFor={`stone-mobile-${stone}`} className="text-sm">
-                            {stone}
-                          </Label>
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                  
-                  <div className="flex gap-4 mt-8">
-                    <Button 
-                      variant="outline" 
-                      onClick={resetFilters}
-                      className="flex-1"
-                    >
-                      Reset
-                    </Button>
-                    <Button 
-                      onClick={() => setFilterOpen(false)}
-                      className="flex-1 bg-gold hover:bg-gold-dark"
-                    >
-                      Apply Filters
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
+            <MobileFilterDrawer
+              open={filterOpen}
+              onOpenChange={setFilterOpen}
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={(category) => {
+                handleCategoryChange(category);
+                setFilterOpen(false);
+              }}
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
+              materials={materials}
+              onMaterialsChange={setMaterials}
+              materialOptions={materialOptions}
+              stones={stones}
+              onStonesChange={setStones}
+              stoneOptions={stoneOptions}
+              onReset={resetFilters}
+            />
             
             {/* Products */}
             <div className="flex-1">
               {/* Active Filters */}
-              {(activeCategory !== "All" || searchQuery || priceRange[0] > 0 || priceRange[1] < 2000) && (
-                <div className="mb-6 flex flex-wrap gap-2">
-                  {activeCategory !== "All" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => setActiveCategory("All")}
-                    >
-                      {activeCategory}
-                      <X className="ml-1 h-3 w-3" />
-                    </Button>
-                  )}
-                  
-                  {searchQuery && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      Search: {searchQuery}
-                      <X className="ml-1 h-3 w-3" />
-                    </Button>
-                  )}
-                  
-                  {(priceRange[0] > 0 || priceRange[1] < 2000) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => setPriceRange([0, 2000])}
-                    >
-                      Price: ${priceRange[0]} - ${priceRange[1]}
-                      <X className="ml-1 h-3 w-3" />
-                    </Button>
-                  )}
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 text-xs text-muted-foreground"
-                    onClick={resetFilters}
-                  >
-                    Clear all
-                  </Button>
-                </div>
-              )}
+              <ProductFilters
+                activeCategory={activeCategory}
+                onClearCategory={() => handleCategoryChange("All")}
+                searchQuery={searchQuery}
+                onClearSearch={() => setSearchQuery("")}
+                priceRange={priceRange}
+                onClearPriceRange={() => setPriceRange([0, 2000])}
+                materials={materials}
+                onRemoveMaterial={(material) => 
+                  setMaterials(materials.filter(m => m !== material))
+                }
+                stones={stones}
+                onRemoveStone={(stone) => 
+                  setStones(stones.filter(s => s !== stone))
+                }
+                onResetAll={resetFilters}
+              />
               
               {/* Results Count */}
               <div className="mb-6">
