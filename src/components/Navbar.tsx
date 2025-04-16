@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { ShoppingCart, Menu, Search, User, X } from "lucide-react";
+import { useCart } from "@/contexts/CartContext"; // Import useCart
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { itemCount, setIsOpen: setCartOpen } = useCart(); // Use cart context
 
   return (
     <header className="bg-background border-b border-border/40 sticky top-0 z-50">
@@ -13,7 +15,8 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <h1 className="text-2xl font-playfair font-bold text-gold-dark">ELEGOLD</h1>
+            {/* Updated Site Name */}
+            <h1 className="text-2xl font-playfair font-bold text-gold-dark">Maity Jewels</h1>
           </Link>
 
           {/* Desktop Navigation */}
@@ -40,14 +43,18 @@ const Navbar = () => {
             <Button variant="ghost" size="icon" className="hidden md:flex">
               <Search size={20} />
             </Button>
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <User size={20} />
+            {/* Updated User Icon Link - Point to login page */}
+            <Button variant="ghost" size="icon" className="hidden md:flex" asChild>
+              <Link to="/login"><User size={20} /></Link>
             </Button>
-            <Button variant="ghost" size="icon">
+            {/* Cart Icon Button */}
+            <Button variant="ghost" size="icon" className="relative" onClick={() => setCartOpen(true)}>
               <ShoppingCart size={20} />
-              <span className="absolute top-0 right-0 bg-gold-dark text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">
-                0
-              </span>
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gold-dark text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </Button>
             <Button 
               variant="ghost" 
@@ -102,8 +109,9 @@ const Navbar = () => {
               <Button variant="ghost" size="icon">
                 <Search size={20} />
               </Button>
-              <Button variant="ghost" size="icon">
-                <User size={20} />
+              {/* Updated User Icon Link - Point to login page */}
+              <Button variant="ghost" size="icon" asChild onClick={() => setIsMenuOpen(false)}>
+                <Link to="/login"><User size={20} /></Link>
               </Button>
             </div>
           </nav>

@@ -182,7 +182,8 @@ const Collections = () => {
     if (searchParams.has("price")) {
       const priceParam = searchParams.get("price") || "0,2000";
       const [min, max] = priceParam.split(",").map(Number);
-      setPriceRange([min, max]);
+      // Ensure correct order when loading from URL too
+      setPriceRange([Math.min(min, max), Math.max(min, max)]); 
     }
     
     if (searchParams.has("materials")) {
@@ -245,6 +246,18 @@ const Collections = () => {
     } else {
       // Add category to URL path
       navigate(`/collections/${category.toLowerCase()}`);
+    }
+  };
+
+  // *** New Handler Function ***
+  const handlePriceChange = (newRange: number[]) => {
+    if (newRange.length === 2) {
+      // Explicitly ensure [min, max] order
+      setPriceRange([Math.min(newRange[0], newRange[1]), Math.max(newRange[0], newRange[1])]);
+    } else {
+      // Handle potential single value or unexpected input (though slider should give 2)
+      console.warn("Unexpected value from price slider:", newRange);
+      setPriceRange(newRange); 
     }
   };
 
@@ -313,7 +326,7 @@ const Collections = () => {
               activeCategory={activeCategory}
               onCategoryChange={handleCategoryChange}
               priceRange={priceRange}
-              onPriceRangeChange={setPriceRange}
+              onPriceRangeChange={handlePriceChange} // *** Use new handler ***
               materials={materials}
               onMaterialsChange={setMaterials}
               materialOptions={materialOptions}
@@ -334,7 +347,7 @@ const Collections = () => {
                 setFilterOpen(false);
               }}
               priceRange={priceRange}
-              onPriceRangeChange={setPriceRange}
+              onPriceRangeChange={handlePriceChange} // *** Use new handler ***
               materials={materials}
               onMaterialsChange={setMaterials}
               materialOptions={materialOptions}

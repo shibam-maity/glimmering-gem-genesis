@@ -17,6 +17,8 @@ import ShoppingCart from "./components/ShoppingCart";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import Wishlist from "./pages/Wishlist";
+import LoginPage from "./pages/LoginPage"; // Added import
+import SignupPage from "./pages/SignupPage"; // Added import
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,10 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/wishlist" element={<Wishlist />} />
+              
+              {/* Auth routes */}
+              <Route path="/login" element={<LoginPage />} /> {/* Added route */}
+              <Route path="/signup" element={<SignupPage />} /> {/* Added route */}
               
               {/* Placeholder routes for footer links */}
               <Route path="/bestsellers" element={<ComingSoon pageName="Bestsellers" />} />

@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone } from "lucide-react";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input"; // Added Input import
 
 const Footer = () => {
   return (
@@ -10,7 +11,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand Column */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-playfair font-bold text-gold-dark">ELEGOLD</h3>
+            <h3 className="text-2xl font-playfair font-bold text-gold-dark">Maity Jewels</h3>
             <p className="text-muted-foreground text-sm font-poppins">
               Handcrafted luxury gold jewelry that celebrates timeless elegance and modern design.
             </p>
@@ -61,11 +62,12 @@ const Footer = () => {
             <div className="mt-4 space-y-2">
               <div className="flex items-center text-sm font-poppins text-muted-foreground">
                 <Mail size={16} className="mr-2" />
-                <span>support@elegold.com</span>
+                <span>support@maityjewels.com</span>
               </div>
               <div className="flex items-center text-sm font-poppins text-muted-foreground">
                 <Phone size={16} className="mr-2" />
-                <span>+1 (800) 123-4567</span>
+                {/* Updated Phone Number */}
+                <span>8179362596</span> 
               </div>
             </div>
           </div>
@@ -79,10 +81,10 @@ const Footer = () => {
               <p className="text-sm text-muted-foreground font-poppins">Stay updated with our latest collections and special offers</p>
             </div>
             <div className="flex w-full md:w-auto">
-              <input 
+              <Input 
                 type="email" 
                 placeholder="Your email address" 
-                className="px-4 py-2 border border-border bg-white flex-grow md:w-64 text-sm rounded-l-md focus:outline-none focus:ring-1 focus:ring-gold"
+                className="border-r-0 rounded-r-none focus:ring-1 focus:ring-gold flex-grow md:w-64"
               />
               <Button className="rounded-l-none bg-gold-dark hover:bg-gold">
                 Subscribe
@@ -94,7 +96,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="border-t border-border/20 pt-6 text-center">
           <p className="text-xs text-muted-foreground font-poppins">
-            &copy; {new Date().getFullYear()} ELEGOLD. All rights reserved. 
+            &copy; {new Date().getFullYear()} Maity Jewels. All rights reserved. 
           </p>
           <div className="flex justify-center space-x-4 mt-2 text-xs text-muted-foreground font-poppins">
             <Link to="/privacy" className="hover:text-gold">Privacy Policy</Link>
