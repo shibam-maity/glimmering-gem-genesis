@@ -1,0 +1,59 @@
+
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
+import { ChevronRight } from "lucide-react";
+
+const HeroSection = () => {
+  return (
+    <section className="relative bg-luxury-cream overflow-hidden">
+      {/* Hero Image */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=1920"
+          alt="Luxury gold jewelry"
+          className="w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-black/30"></div>
+      </div>
+
+      {/* Content */}
+      <div className="container relative z-10 mx-auto px-6 py-24 md:py-32 lg:py-40">
+        <div className="max-w-xl">
+          <span className="inline-block font-poppins text-white/80 text-sm tracking-wider uppercase mb-2">
+            Timeless Elegance
+          </span>
+          <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight mb-4">
+            Exquisite Gold Jewelry Collection
+          </h1>
+          <p className="font-poppins text-white/90 text-base md:text-lg mb-8 max-w-md">
+            Discover our handcrafted pieces that blend traditional craftsmanship with contemporary design.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Button 
+              size="lg" 
+              className="bg-gold hover:bg-gold-dark text-white"
+              asChild
+            >
+              <Link to="/collections">
+                Explore Collection
+                <ChevronRight size={16} />
+              </Link>
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-white text-white hover:bg-white/10"
+              asChild
+            >
+              <Link to="/new-arrivals">
+                New Arrivals
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HeroSection;
