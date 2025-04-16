@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { Button } from "./ui/button";
+import { useState } from "react";
 
 interface ProductCardProps {
   id: string;
@@ -22,14 +23,25 @@ const ProductCard = ({
   isNew = false,
   isBestseller = false
 }: ProductCardProps) => {
+  const [imageError, setImageError] = useState(false);
+  
+  // Fallback image in case the original one fails to load
+  const fallbackImage = "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&q=80&w=600";
+  
+  const handleImageError = () => {
+    console.log(`Image failed to load: ${image}`);
+    setImageError(true);
+  };
+
   return (
     <div className="group relative">
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden rounded-md bg-secondary/50 mb-3">
         <img
-          src={image}
+          src={imageError ? fallbackImage : image}
           alt={name}
           className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+          onError={handleImageError}
         />
         <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10"></div>
         
