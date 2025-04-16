@@ -15,6 +15,8 @@ import NotFound from "./pages/NotFound";
 import ProductDetails from "./pages/ProductDetails";
 import ShoppingCart from "./components/ShoppingCart";
 import { CartProvider } from "./contexts/CartContext";
+import { WishlistProvider } from "./contexts/WishlistContext";
+import Wishlist from "./pages/Wishlist";
 
 const queryClient = new QueryClient();
 
@@ -22,36 +24,39 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <CartProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/collections" element={<Collections />} />
-            <Route path="/new-arrivals" element={<NewArrivals />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/product/:id" element={<ProductDetails />} />
-            
-            {/* Placeholder routes for footer links */}
-            <Route path="/bestsellers" element={<ComingSoon pageName="Bestsellers" />} />
-            <Route path="/sale" element={<ComingSoon pageName="Special Offers" />} />
-            <Route path="/blog" element={<ComingSoon pageName="Our Story" />} />
-            <Route path="/careers" element={<ComingSoon pageName="Careers" />} />
-            <Route path="/shipping" element={<ComingSoon pageName="Shipping & Returns" />} />
-            <Route path="/faq" element={<ComingSoon pageName="FAQ" />} />
-            <Route path="/care" element={<ComingSoon pageName="Jewelry Care" />} />
-            <Route path="/size-guide" element={<ComingSoon pageName="Size Guide" />} />
-            <Route path="/privacy" element={<ComingSoon pageName="Privacy Policy" />} />
-            <Route path="/terms" element={<ComingSoon pageName="Terms of Service" />} />
-            <Route path="/cookies" element={<ComingSoon pageName="Cookie Policy" />} />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <ShoppingCart />
-        </BrowserRouter>
+        <WishlistProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/collections" element={<Collections />} />
+              <Route path="/new-arrivals" element={<NewArrivals />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              
+              {/* Placeholder routes for footer links */}
+              <Route path="/bestsellers" element={<ComingSoon pageName="Bestsellers" />} />
+              <Route path="/sale" element={<ComingSoon pageName="Special Offers" />} />
+              <Route path="/blog" element={<ComingSoon pageName="Our Story" />} />
+              <Route path="/careers" element={<ComingSoon pageName="Careers" />} />
+              <Route path="/shipping" element={<ComingSoon pageName="Shipping & Returns" />} />
+              <Route path="/faq" element={<ComingSoon pageName="FAQ" />} />
+              <Route path="/care" element={<ComingSoon pageName="Jewelry Care" />} />
+              <Route path="/size-guide" element={<ComingSoon pageName="Size Guide" />} />
+              <Route path="/privacy" element={<ComingSoon pageName="Privacy Policy" />} />
+              <Route path="/terms" element={<ComingSoon pageName="Terms of Service" />} />
+              <Route path="/cookies" element={<ComingSoon pageName="Cookie Policy" />} />
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <ShoppingCart />
+          </BrowserRouter>
+        </WishlistProvider>
       </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>

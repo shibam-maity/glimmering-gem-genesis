@@ -1,8 +1,10 @@
 
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import WishlistButton from "./WishlistButton";
+import { useCart } from "@/contexts/CartContext";
+import { ShoppingBag } from "lucide-react";
 
 interface ProductCardProps {
   id: string;
@@ -24,6 +26,7 @@ const ProductCard = ({
   isBestseller = false
 }: ProductCardProps) => {
   const [imageError, setImageError] = useState(false);
+  const { addItem } = useCart();
   
   // Fallback image in case the original one fails to load
   const fallbackImage = "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&q=80&w=600";
@@ -31,6 +34,16 @@ const ProductCard = ({
   const handleImageError = () => {
     console.log(`Image failed to load: ${image}`);
     setImageError(true);
+  };
+
+  const handleAddToCart = () => {
+    addItem({
+      id,
+      name,
+      price,
+      image: imageError ? fallbackImage : image,
+      category
+    });
   };
 
   return (
@@ -55,13 +68,9 @@ const ProductCard = ({
             >
               <Link to={`/product/${id}`}>Quick View</Link>
             </Button>
-            <Button 
-              size="icon"
-              variant="ghost" 
-              className="h-8 w-8 rounded-full bg-white text-foreground hover:bg-white/90 flex items-center justify-center"
-            >
-              <Heart size={16} />
-            </Button>
+            <WishlistButton
+              product={{ id, name, price, image: imageError ? fallbackImage : image, category }}
+            />
           </div>
         </div>
 
@@ -88,6 +97,17 @@ const ProductCard = ({
       </Link>
       <p className="text-xs text-muted-foreground font-poppins mb-1.5">{category}</p>
       <p className="font-medium font-poppins text-gold-dark">${price.toFixed(2)}</p>
+      
+      {/* Add to cart button */}
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={handleAddToCart}
+        className="mt-2 w-full border border-gold text-gold-dark hover:bg-gold hover:text-white"
+      >
+        <ShoppingBag size={14} />
+        Add to Cart
+      </Button>
     </div>
   );
 };

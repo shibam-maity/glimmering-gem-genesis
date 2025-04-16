@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -10,7 +9,6 @@ import {
   RefreshCw, 
   ShieldCheck,
   ArrowLeft, 
-  Heart,
   Share2,
   Plus,
   Minus,
@@ -21,8 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/contexts/CartContext";
+import WishlistButton from "@/components/WishlistButton";
 
-// Sample product data - in a real app, this would come from an API
 const products = [
   {
     id: "prod-1",
@@ -41,7 +39,7 @@ const products = [
     },
     care: "Clean with a soft cloth. Avoid contact with harsh chemicals. Store in a jewelry box.",
     additionalImages: [
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=600",
+      "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600",
       "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600",
       "https://images.unsplash.com/photo-1630019852942-f87fa946dc68?auto=format&fit=crop&q=80&w=600"
     ],
@@ -125,7 +123,6 @@ const products = [
   }
 ];
 
-// Similar products for recommendations
 const similarProducts = products.slice(0, 4);
 
 const ProductDetails = () => {
@@ -134,8 +131,7 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const { addItem } = useCart();
 
-  // Find the product with the matching ID
-  const product = products.find(p => p.id === id) || products[0]; // Fallback to first product if not found
+  const product = products.find(p => p.id === id) || products[0];
 
   const incrementQuantity = () => {
     if (quantity < product.stock) {
@@ -161,17 +157,11 @@ const ProductDetails = () => {
     }, quantity);
   };
 
-  const addToWishlist = () => {
-    toast.success(`${product.name} added to wishlist`);
-    // In a real app, you would dispatch to your wishlist state management here
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       
       <main className="container px-4 py-10 mx-auto">
-        {/* Breadcrumb */}
         <div className="mb-6">
           <nav className="flex text-sm">
             <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -187,7 +177,6 @@ const ProductDetails = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Product Images */}
           <div className="space-y-4">
             <div className="aspect-square overflow-hidden rounded-lg bg-secondary/30">
               <img 
@@ -213,9 +202,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* Product Info */}
           <div className="space-y-6">
-            {/* Title and badges */}
             <div>
               <div className="flex items-center gap-2 mb-2">
                 {product.isNew && (
@@ -228,7 +215,6 @@ const ProductDetails = () => {
               <h1 className="text-3xl md:text-4xl font-playfair font-medium">{product.name}</h1>
             </div>
 
-            {/* Price and rating */}
             <div className="flex flex-wrap items-center justify-between">
               <p className="text-2xl md:text-3xl font-playfair text-gold-dark">${product.price.toFixed(2)}</p>
               <div className="flex items-center gap-1">
@@ -246,16 +232,13 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Description */}
             <p className="text-muted-foreground font-poppins">{product.description}</p>
 
-            {/* Stock */}
             <div className="flex items-center gap-2 text-sm">
               <span className={`h-3 w-3 rounded-full ${product.stock > 0 ? "bg-green-500" : "bg-red-500"}`}></span>
               <span>{product.stock > 0 ? `In Stock (${product.stock} available)` : "Out of Stock"}</span>
             </div>
 
-            {/* Quantity selector */}
             <div className="pt-4">
               <p className="text-sm font-medium mb-2">Quantity</p>
               <div className="flex items-center">
@@ -283,7 +266,6 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
                 className="bg-gold hover:bg-gold-dark text-white flex-1"
@@ -293,18 +275,19 @@ const ProductDetails = () => {
                 <ShoppingBag size={18} />
                 Add to Cart
               </Button>
-              <Button 
-                variant="outline" 
-                className="border-gold text-gold-dark hover:bg-gold-light/10"
-                size="lg"
-                onClick={addToWishlist}
-              >
-                <Heart size={18} />
-                Wishlist
-              </Button>
+              <WishlistButton 
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.image,
+                  category: product.category
+                }}
+                variant="default"
+                className="flex-1"
+              />
             </div>
 
-            {/* Benefits */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6">
               <div className="flex items-center gap-2">
                 <Truck size={18} className="text-gold-dark" />
@@ -326,7 +309,6 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* Product Details Tabs */}
         <div className="mt-16">
           <Tabs defaultValue="details">
             <TabsList className="w-full border-b rounded-none justify-start h-auto p-0 bg-transparent gap-8">
@@ -466,7 +448,6 @@ const ProductDetails = () => {
           </Tabs>
         </div>
 
-        {/* Similar Products */}
         <div className="mt-24">
           <h2 className="text-2xl md:text-3xl font-playfair font-semibold mb-8 text-center">You May Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
