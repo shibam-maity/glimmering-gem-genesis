@@ -22,6 +22,17 @@ interface ProductFilterSidebarProps {
   onReset: () => void;
 }
 
+// Helper function to format price range
+const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+};
+
+
 const ProductFilterSidebar = ({
   categories,
   activeCategory,
@@ -63,8 +74,8 @@ const ProductFilterSidebar = ({
               variant="ghost"
               className={cn(
                 "w-full justify-start px-2",
-                activeCategory === category 
-                  ? "bg-gold-light/10 text-gold-dark font-medium hover:bg-gold-light/20" 
+                activeCategory === category
+                  ? "bg-gold-light/10 text-gold-dark font-medium hover:bg-gold-light/20"
                   : "hover:bg-muted"
               )}
               onClick={() => onCategoryChange(category)}
@@ -74,25 +85,26 @@ const ProductFilterSidebar = ({
           ))}
         </div>
       </div>
-      
+
       <div>
         <h3 className="font-medium mb-3">Price Range</h3>
         <div className="px-2">
-          <Slider 
-            defaultValue={[0, 2000]} 
-            max={2000} 
-            step={50}
+          <Slider
+            defaultValue={[0, 2000]} // Assuming initial max is 2000 in base currency?
+            max={2000} // TODO: Update max value based on actual product price range in INR
+            step={50} // TODO: Adjust step based on INR values
             value={priceRange}
             onValueChange={onPriceRangeChange}
             className="my-6"
           />
           <div className="flex items-center justify-between">
-            <span className="text-sm">${priceRange[0]}</span>
-            <span className="text-sm">${priceRange[1]}+</span>
+            {/* Updated Price Display */}
+            <span className="text-sm">{formatPrice(priceRange[0])}</span>
+            <span className="text-sm">{formatPrice(priceRange[1])}+</span>
           </div>
         </div>
       </div>
-      
+
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex w-full items-center justify-between font-medium mb-3">
           Material
@@ -101,10 +113,10 @@ const ProductFilterSidebar = ({
         <CollapsibleContent className="space-y-2">
           {materialOptions.map((material) => (
             <div key={material} className="flex items-center gap-2">
-              <Checkbox 
-                id={`material-${material}`} 
+              <Checkbox
+                id={`material-${material}`}
                 checked={materials.includes(material)}
-                onCheckedChange={(checked) => 
+                onCheckedChange={(checked) =>
                   handleMaterialChange(material, checked as boolean)
                 }
               />
@@ -115,7 +127,7 @@ const ProductFilterSidebar = ({
           ))}
         </CollapsibleContent>
       </Collapsible>
-      
+
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex w-full items-center justify-between font-medium mb-3">
           Stones
@@ -124,10 +136,10 @@ const ProductFilterSidebar = ({
         <CollapsibleContent className="space-y-2">
           {stoneOptions.map((stone) => (
             <div key={stone} className="flex items-center gap-2">
-              <Checkbox 
-                id={`stone-${stone}`} 
+              <Checkbox
+                id={`stone-${stone}`}
                 checked={stones.includes(stone)}
-                onCheckedChange={(checked) => 
+                onCheckedChange={(checked) =>
                   handleStoneChange(stone, checked as boolean)
                 }
               />
@@ -138,9 +150,9 @@ const ProductFilterSidebar = ({
           ))}
         </CollapsibleContent>
       </Collapsible>
-      
-      <Button 
-        variant="outline" 
+
+      <Button
+        variant="outline"
         onClick={onReset}
         className="w-full mt-6"
       >

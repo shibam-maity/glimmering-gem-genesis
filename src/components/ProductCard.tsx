@@ -27,10 +27,10 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const [imageError, setImageError] = useState(false);
   const { addItem } = useCart();
-  
+
   // Fallback image in case the original one fails to load
   const fallbackImage = "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&q=80&w=600";
-  
+
   const handleImageError = () => {
     console.log(`Image failed to load: ${image}`);
     setImageError(true);
@@ -46,6 +46,14 @@ const ProductCard = ({
     });
   };
 
+  // Format price with Indian Rupees
+  const formattedPrice = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 0, // Optional: Remove decimals if desired
+    maximumFractionDigits: 0, // Optional: Remove decimals if desired
+  }).format(price);
+
   return (
     <div className="group relative">
       {/* Product Image */}
@@ -57,12 +65,12 @@ const ProductCard = ({
           onError={handleImageError}
         />
         <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10"></div>
-        
+
         {/* Quick Actions */}
         <div className="absolute bottom-4 left-0 w-full px-4 opacity-0 transition-opacity group-hover:opacity-100">
           <div className="flex justify-between">
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               className="bg-white text-foreground hover:bg-white/90"
               asChild
             >
@@ -96,16 +104,17 @@ const ProductCard = ({
         </h3>
       </Link>
       <p className="text-xs text-muted-foreground font-poppins mb-1.5">{category}</p>
-      <p className="font-medium font-poppins text-gold-dark">${price.toFixed(2)}</p>
-      
+      {/* Updated Price Display */}
+      <p className="font-medium font-poppins text-gold-dark">{formattedPrice}</p>
+
       {/* Add to cart button */}
-      <Button 
-        variant="ghost" 
-        size="sm" 
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={handleAddToCart}
         className="mt-2 w-full border border-gold text-gold-dark hover:bg-gold hover:text-white"
       >
-        <ShoppingBag size={14} />
+        <ShoppingBag size={14} className="mr-2" /> {/* Added margin */}
         Add to Cart
       </Button>
     </div>
