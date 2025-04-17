@@ -20,7 +20,7 @@ const About = () => {
           <div className="text-center flex-shrink-0">
              <Avatar className="w-32 h-32 md:w-40 md:h-40 mx-auto border-4 border-gold-light shadow-lg">
               {/* TODO: Replace with actual image URL if available */}
-              <AvatarImage src="/placeholder.svg" alt="Founder/Inspiration" /> 
+              <AvatarImage src="/public/image.png" alt="Founder/Inspiration" /> 
               <AvatarFallback>MJ</AvatarFallback>
             </Avatar>
             {/* Optional: Add caption here if needed */}

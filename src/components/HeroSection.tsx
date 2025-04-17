@@ -10,7 +10,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-0">
         <img
           // Replaced image URL
-          src="https://images.unsplash.com/photo-1611652022419-a741c5e36642?auto=format&fit=crop&w=1920&q=80"
+          src="public\women-men-s-gold-jewelry-cosmetics_955048-48521.jpg"
           alt="Woman wearing gold jewelry"
           className="w-full h-full object-cover object-center"
         />
