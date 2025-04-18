@@ -1,4 +1,5 @@
-
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
 
 const Contact = () => {
   const [name, setName] = useState("");
@@ -105,8 +105,9 @@ const Contact = () => {
                   <Mail className="h-5 w-5 text-gold mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium">Email</h4>
-                    <a href="mailto:support@maityjewels.com" className="text-muted-foreground hover:text-gold">
-                      support@maityjewels.com
+                    {/* Updated Email Here */}
+                    <a href="mailto:shibammaitymaity@gmail.com" className="text-muted-foreground hover:text-gold break-all">
+                      shibammaitymaity@gmail.com
                     </a>
                   </div>
                 </div>
@@ -114,9 +115,16 @@ const Contact = () => {
                   <Phone className="h-5 w-5 text-gold mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium">Phone</h4>
+                    {/* Only showing the primary number here, add second if needed */}
                     <a href="tel:8179362596" className="text-muted-foreground hover:text-gold">
                       8179362596
                     </a>
+                    {/* Optional: Add second number 
+                    <br /> 
+                    <a href="tel:8179094596" className="text-muted-foreground hover:text-gold">
+                      8179094596
+                    </a> 
+                    */}
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -125,7 +133,7 @@ const Contact = () => {
                     <h4 className="font-medium">Address</h4>
                     <p className="text-muted-foreground">
                       {/* TODO: Replace with actual address if available */}
-                      123 Jewelry Lane, Sparkle City, SC 12345
+                      123 Jewelry Lane, Sparkle City, SC 12345 
                     </p>
                   </div>
                 </div>

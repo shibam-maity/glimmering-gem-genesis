@@ -1,4 +1,4 @@
-
+import React from 'react'
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,17 +19,16 @@ import { WishlistProvider } from "./contexts/WishlistContext";
 import Wishlist from "./pages/Wishlist";
 import LoginPage from "./pages/LoginPage"; // Added import
 import SignupPage from "./pages/SignupPage"; // Added import
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
@@ -40,11 +39,9 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/wishlist" element={<Wishlist />} />
-              
               {/* Auth routes */}
               <Route path="/login" element={<LoginPage />} /> {/* Added route */}
               <Route path="/signup" element={<SignupPage />} /> {/* Added route */}
-              
               {/* Placeholder routes for footer links */}
               <Route path="/bestsellers" element={<ComingSoon pageName="Bestsellers" />} />
               <Route path="/sale" element={<ComingSoon pageName="Special Offers" />} />
@@ -57,14 +54,15 @@ const App = () => (
               <Route path="/privacy" element={<ComingSoon pageName="Privacy Policy" />} />
               <Route path="/terms" element={<ComingSoon pageName="Terms of Service" />} />
               <Route path="/cookies" element={<ComingSoon pageName="Cookie Policy" />} />
-              
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
             <ShoppingCart />
-          </BrowserRouter>
-        </WishlistProvider>
-      </CartProvider>
+            <DefaultToaster />
+            <Sonner />
+          </WishlistProvider>
+        </CartProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

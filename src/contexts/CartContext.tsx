@@ -1,6 +1,7 @@
-
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "./AuthContext"; // Import the actual useAuth hook
 
 type CartItem = {
   id: string;
@@ -26,83 +27,104 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>([]); // Initialize empty, load in useEffect
   const [isOpen, setIsOpen] = useState(false);
-  
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth(); // Use actual auth state
+
   // Load cart from localStorage on mount
+  // We don't strictly need to check auth here, as adding items is guarded
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
+    const savedCart = localStorage.getItem("cartItems");
     if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error("Failed to parse cart from localStorage:", error);
-      }
+        try {
+            setItems(JSON.parse(savedCart));
+        } catch (error) {
+            console.error("Failed to parse cart from localStorage:", error);
+            localStorage.removeItem("cartItems"); // Clear corrupted cart data
+        }
     }
   }, []);
-  
-  // Save cart to localStorage whenever it changes
+
+  // Save cart to localStorage whenever items change
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items));
+    localStorage.setItem("cartItems", JSON.stringify(items));
   }, [items]);
-  
+
+  // Clear cart on logout
+  useEffect(() => {
+      if (!isAuthLoading && !isAuthenticated) {
+          // If auth is loaded and user is not authenticated, clear the cart
+          // Prevents showing cart items from a previous session after logout
+          if (items.length > 0) {
+             console.log("User logged out, clearing cart.");
+             setItems([]);
+          }
+      }
+  }, [isAuthenticated, isAuthLoading, items.length]); // Depend on auth state and items length
+
+
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
-  
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  
+
   const addItem = (item: Omit<CartItem, "quantity">, quantity = 1) => {
+    // Use the real isAuthenticated value from useAuth
+    if (!isAuthenticated) {
+      toast.error("Please login or sign up to add items to your cart.");
+      setIsOpen(false); 
+      navigate("/login"); 
+      return; 
+    }
+
     setItems(prevItems => {
-      // Check if item already exists in cart
       const existingItemIndex = prevItems.findIndex(i => i.id === item.id);
-      
-      if (existingItemIndex >= 0) {
-        // Update quantity of existing item
-        const newItems = [...prevItems];
-        newItems[existingItemIndex] = {
-          ...newItems[existingItemIndex],
-          quantity: newItems[existingItemIndex].quantity + quantity
-        };
-        toast.success(`Updated quantity of ${item.name} in your cart`);
-        return newItems;
+
+      if (existingItemIndex > -1) {
+        const updatedItems = [...prevItems];
+        const newQuantity = updatedItems[existingItemIndex].quantity + quantity;
+        // TODO: Check against stock level here if available
+        updatedItems[existingItemIndex] = { ...updatedItems[existingItemIndex], quantity: newQuantity };
+        toast.success(`${item.name} quantity updated in cart`);
+        return updatedItems;
       } else {
-        // Add new item
-        toast.success(`Added ${item.name} to your cart`);
+        toast.success(`${item.name} added to cart`);
         return [...prevItems, { ...item, quantity }];
       }
     });
-    
-    // Automatically open cart when adding items
-    setIsOpen(true);
+    setIsOpen(true); 
   };
-  
+
   const removeItem = (id: string) => {
     setItems(prevItems => {
-      const item = prevItems.find(i => i.id === id);
-      if (item) {
-        toast.success(`Removed ${item.name} from your cart`);
-      }
-      return prevItems.filter(item => item.id !== id);
+        const itemToRemove = prevItems.find(item => item.id === id);
+        if (itemToRemove) {
+            toast.info(`Removed ${itemToRemove.name} from cart`);
+        }
+        return prevItems.filter(item => item.id !== id)
     });
   };
-  
+
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(id);
-      return;
+    } else {
+      // TODO: Check against stock level here if available
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === id ? { ...item, quantity } : item
+        )
+      );
     }
-    
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
   };
-  
+
   const clearCart = () => {
+    // We might only want logged-in users to clear the cart, 
+    // but clearing an empty/non-existent cart is harmless.
+    // If required, add: if (!isAuthenticated) return;
     setItems([]);
-    toast.success("Cart cleared");
+    toast.info("Cart cleared");
   };
-  
+
   return (
     <CartContext.Provider
       value={{
